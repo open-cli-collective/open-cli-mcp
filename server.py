@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Open CLI Tools MCP Server
+Open CLI MCP Server
 
 Exposes CLI tools from the open-cli-collective as MCP tools for Claude Code.
 Provides both convenience wrappers for common operations and generic access
@@ -17,7 +17,7 @@ from mcp.server.fastmcp import FastMCP
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-mcp = FastMCP("open-cli-tools")
+mcp = FastMCP("open-cli-mcp")
 
 # CLI configuration - only open-cli-collective tools
 # All tools installed via: brew install --cask open-cli-collective/tap/<name>
@@ -550,5 +550,5 @@ def install_missing_tools() -> str:
 
 
 if __name__ == "__main__":
-    logger.info("Starting Open CLI Tools MCP Server...")
+    logger.info("Starting Open CLI MCP Server...")
     mcp.run(transport="stdio")

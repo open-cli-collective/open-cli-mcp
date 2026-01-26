@@ -1,4 +1,4 @@
-# Open CLI Tools MCP Server
+# Open CLI MCP Server
 
 This is an MCP server that exposes open-cli-collective CLI tools to Claude Code.
 

@@ -1,4 +1,4 @@
-# Open CLI Tools MCP Server
+# Open CLI MCP Server
 
 An MCP (Model Context Protocol) server that exposes CLI tools from the [open-cli-collective](https://github.com/open-cli-collective) as tools for Claude Code and other MCP-compatible clients.
 
@@ -37,8 +37,8 @@ brew install --cask open-cli-collective/tap/google-readonly
 
 ```bash
 # Clone the repository
-git clone https://github.com/open-cli-collective/open-cli-tools.git
-cd open-cli-tools
+git clone https://github.com/open-cli-collective/open-cli-mcp.git
+cd open-cli-mcp
 
 # Install Python dependencies
 pip install -r requirements.txt
@@ -52,9 +52,9 @@ Add to your Claude Code MCP configuration (`~/.claude/mcp_servers.json`):
 
 ```json
 {
-  "open-cli-tools": {
+  "open-cli-mcp": {
     "command": "python3",
-    "args": ["/path/to/open-cli-tools/server.py"]
+    "args": ["/path/to/open-cli-mcp/server.py"]
   }
 }
 ```
@@ -64,7 +64,7 @@ Add to your Claude Code MCP configuration (`~/.claude/mcp_servers.json`):
 The server runs via stdio transport. Configure your client to execute:
 
 ```bash
-python3 /path/to/open-cli-tools/server.py
+python3 /path/to/open-cli-mcp/server.py
 ```
 
 ## Usage
