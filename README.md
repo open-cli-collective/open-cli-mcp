@@ -6,10 +6,10 @@ An MCP (Model Context Protocol) server that exposes CLI tools from the [open-cli
 
 | CLI | Binary | Description |
 |-----|--------|-------------|
-| [jira-ticket-cli](https://github.com/open-cli-collective/jira-ticket-cli) | `jira-ticket-cli` | Jira Cloud ticket management |
+| [jira-ticket-cli](https://github.com/open-cli-collective/jira-ticket-cli) | `jtk` | Jira Cloud ticket management |
 | [slack-chat-api](https://github.com/open-cli-collective/slack-chat-api) | `slck` | Slack workspace interaction |
 | [confluence-cli](https://github.com/open-cli-collective/confluence-cli) | `cfl` | Confluence page and space management |
-| [newrelic-cli](https://github.com/open-cli-collective/newrelic-cli) | `newrelic-cli` | New Relic observability platform |
+| [newrelic-cli](https://github.com/open-cli-collective/newrelic-cli) | `nrq` | New Relic observability platform |
 | [google-readonly](https://github.com/open-cli-collective/google-readonly) | `gro` | Read-only Google services (Gmail, Calendar, Contacts, Drive) |
 
 ## Installation
@@ -26,11 +26,11 @@ An MCP (Model Context Protocol) server that exposes CLI tools from the [open-cli
 brew tap open-cli-collective/tap
 
 # Install the tools you need (all are casks)
-brew install --cask open-cli-collective/tap/jira-ticket-cli
-brew install --cask open-cli-collective/tap/slack-chat-cli
+brew install --cask open-cli-collective/tap/jtk
+brew install --cask open-cli-collective/tap/slck
 brew install --cask open-cli-collective/tap/cfl
-brew install --cask open-cli-collective/tap/newrelic-cli
-brew install --cask open-cli-collective/tap/google-readonly
+brew install --cask open-cli-collective/tap/nrq
+brew install --cask open-cli-collective/tap/gro
 ```
 
 ### Install the MCP Server
@@ -74,11 +74,11 @@ Once configured, the MCP server exposes these tools:
 ### Generic CLI Access
 
 - `cli_help(cli, subcommand?)` - Get help for any CLI or subcommand
-- `jira_cli(args)` - Run any jira-ticket-cli command
-- `slack_cli(args)` - Run any slck command
-- `confluence_cli(args)` - Run any cfl command
-- `newrelic_cli(args)` - Run any newrelic-cli command
-- `google_cli(args)` - Run any gro command (Gmail, Calendar, Contacts, Drive)
+- `jira_cli(args)` - Run any jtk (Jira) command
+- `slack_cli(args)` - Run any slck (Slack) command
+- `confluence_cli(args)` - Run any cfl (Confluence) command
+- `newrelic_cli(args)` - Run any nrq (New Relic) command
+- `google_cli(args)` - Run any gro (Google) command (Gmail, Calendar, Contacts, Drive)
 
 ### Convenience Wrappers
 
@@ -99,8 +99,8 @@ Once configured, the MCP server exposes these tools:
 ## Examples
 
 ```
-# Get help for jira-ticket-cli
-cli_help("jira-ticket-cli")
+# Get help for jtk (Jira)
+cli_help("jtk")
 
 # Get a Jira issue
 jira_get_issue("PROJ-1234")

@@ -22,19 +22,19 @@ mcp = FastMCP("open-cli-mcp")
 # CLI configuration - only open-cli-collective tools
 # All tools installed via: brew install --cask open-cli-collective/tap/<name>
 CLI_CONFIG = {
-    "jira-ticket-cli": {
-        "path": "jira-ticket-cli",
+    "jtk": {
+        "path": "jtk",
         "version_cmd": ["--version"],
         "json_flag": "--output json",
         "source": "cask",
-        "cask": "open-cli-collective/tap/jira-ticket-cli",
+        "cask": "open-cli-collective/tap/jtk",
     },
     "slck": {
         "path": "slck",
         "version_cmd": ["--version"],
         "json_flag": "--output json",
         "source": "cask",
-        "cask": "open-cli-collective/tap/slack-chat-cli",
+        "cask": "open-cli-collective/tap/slck",
     },
     "cfl": {
         "path": "cfl",
@@ -43,19 +43,19 @@ CLI_CONFIG = {
         "source": "cask",
         "cask": "open-cli-collective/tap/cfl",
     },
-    "newrelic-cli": {
-        "path": "newrelic-cli",
+    "nrq": {
+        "path": "nrq",
         "version_cmd": ["--version"],
         "json_flag": "--output json",
         "source": "cask",
-        "cask": "open-cli-collective/tap/newrelic-cli",
+        "cask": "open-cli-collective/tap/nrq",
     },
     "gro": {
         "path": "gro",
         "version_cmd": ["--version"],
         "json_flag": "--json",
         "source": "cask",
-        "cask": "open-cli-collective/tap/google-readonly",
+        "cask": "open-cli-collective/tap/gro",
     },
 }
 
@@ -105,12 +105,12 @@ def cli_help(cli: str, subcommand: Optional[str] = None) -> str:
     Get help documentation for a CLI or its subcommands.
     Use this to discover available commands and options.
 
-    cli: CLI name (jira-ticket-cli, slck, cfl, newrelic-cli, gro)
+    cli: CLI name (jtk, slck, cfl, nrq, gro)
     subcommand: Optional subcommand path (e.g., "issues create" or "page list")
 
     Examples:
-    - cli_help("jira-ticket-cli") - Get top-level help
-    - cli_help("jira-ticket-cli", "issues") - Get issues subcommands
+    - cli_help("jtk") - Get top-level help
+    - cli_help("jtk", "issues") - Get issues subcommands
     - cli_help("cfl", "page list") - Get specific command help
     - cli_help("gro", "gmail") - Get Gmail subcommands
     """
@@ -133,7 +133,7 @@ def cli_help(cli: str, subcommand: Optional[str] = None) -> str:
 @mcp.tool()
 def jira_cli(args: str) -> str:
     """
-    Run any jira-ticket-cli command. Full access to Jira functionality.
+    Run any jtk (Jira) command. Full access to Jira functionality.
 
     args: Space-separated arguments (e.g., "issues get PROJ-1234 --output json")
 
@@ -147,9 +147,9 @@ def jira_cli(args: str) -> str:
     - comments add <key> --body "Comment text"
     - me (show current user)
 
-    Use cli_help("jira-ticket-cli") to discover all available commands.
+    Use cli_help("jtk") to discover all available commands.
     """
-    config = CLI_CONFIG["jira-ticket-cli"]
+    config = CLI_CONFIG["jtk"]
     cmd = [config["path"]] + args.split()
     result = run_cli(cmd)
     return json.dumps(result, indent=2)
@@ -207,7 +207,7 @@ def confluence_cli(args: str) -> str:
 @mcp.tool()
 def newrelic_cli(args: str) -> str:
     """
-    Run any newrelic-cli command. Full access to New Relic functionality.
+    Run any nrq (New Relic) command. Full access to New Relic functionality.
 
     args: Space-separated arguments (e.g., "logs query --nrql 'SELECT * FROM Log'")
 
@@ -220,9 +220,9 @@ def newrelic_cli(args: str) -> str:
     - dashboards list
     - entities search --name "pattern"
 
-    Use cli_help("newrelic-cli") to discover all available commands.
+    Use cli_help("nrq") to discover all available commands.
     """
-    config = CLI_CONFIG["newrelic-cli"]
+    config = CLI_CONFIG["nrq"]
     cmd = [config["path"]] + args.split()
     result = run_cli(cmd)
     return json.dumps(result, indent=2)
@@ -423,7 +423,7 @@ def update_tools(tools: Optional[list[str]] = None) -> str:
     Update CLI tools to their latest versions.
 
     tools: Optional list of specific tools to update. If not provided, updates all tools with available updates.
-           Valid names: jira-ticket-cli, slck, cfl, newrelic-cli, gro
+           Valid names: jtk, slck, cfl, nrq, gro
 
     All tools are updated via Homebrew casks from open-cli-collective/tap.
     """
