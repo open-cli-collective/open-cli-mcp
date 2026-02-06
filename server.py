@@ -27,7 +27,7 @@ CLI_CONFIG = {
         "version_cmd": ["--version"],
         "json_flag": "--output json",
         "source": "cask",
-        "cask": "open-cli-collective/tap/jira-ticket-cli",
+        "cask": "open-cli-collective/tap/jtk",
     },
     "slck": {
         "path": "slck",
