@@ -11,7 +11,7 @@ This is an MCP server that exposes open-cli-collective CLI tools to Claude Code.
 
 | Binary | Cask | Description |
 |--------|------|-------------|
-| `jtk` | jira-ticket-cli | Jira Cloud management |
+| `jtk` | jtk | Jira Cloud management |
 | `slck` | slack-chat-cli | Slack workspace interaction |
 | `cfl` | cfl | Confluence CLI |
 | `newrelic-cli` | newrelic-cli | New Relic observability |
