@@ -6,9 +6,9 @@ An MCP (Model Context Protocol) server that exposes CLI tools from the [open-cli
 
 | CLI | Binary | Description |
 |-----|--------|-------------|
-| [jira-ticket-cli](https://github.com/open-cli-collective/jira-ticket-cli) | `jtk` | Jira Cloud ticket management |
+| [atlassian-cli](https://github.com/open-cli-collective/atlassian-cli) | `jtk` | Jira Cloud ticket management |
 | [slack-chat-api](https://github.com/open-cli-collective/slack-chat-api) | `slck` | Slack workspace interaction |
-| [confluence-cli](https://github.com/open-cli-collective/confluence-cli) | `cfl` | Confluence page and space management |
+| [atlassian-cli](https://github.com/open-cli-collective/atlassian-cli) | `cfl` | Confluence page and space management |
 | [newrelic-cli](https://github.com/open-cli-collective/newrelic-cli) | `nrq` | New Relic observability platform |
 | [google-readonly](https://github.com/open-cli-collective/google-readonly) | `gro` | Read-only Google services (Gmail, Calendar, Contacts, Drive) |
 
@@ -26,7 +26,7 @@ An MCP (Model Context Protocol) server that exposes CLI tools from the [open-cli
 brew tap open-cli-collective/tap
 
 # Install the tools you need (all are casks)
-brew install --cask open-cli-collective/tap/jtk
+brew install open-cli-collective/tap/jira-ticket-cli
 brew install --cask open-cli-collective/tap/slck
 brew install --cask open-cli-collective/tap/cfl
 brew install --cask open-cli-collective/tap/nrq
