@@ -26,7 +26,7 @@ An MCP (Model Context Protocol) server that exposes CLI tools from the [open-cli
 brew tap open-cli-collective/tap
 
 # Install the tools you need (all are casks)
-brew install open-cli-collective/tap/jira-ticket-cli
+brew install open-cli-collective/tap/jtk
 brew install --cask open-cli-collective/tap/slck
 brew install --cask open-cli-collective/tap/cfl
 brew install --cask open-cli-collective/tap/nrq
