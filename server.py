@@ -9,6 +9,7 @@ to full CLI functionality.
 
 import json
 import logging
+import shlex
 import subprocess
 from typing import Optional
 
@@ -150,7 +151,7 @@ def jira_cli(args: str) -> str:
     Use cli_help("jtk") to discover all available commands.
     """
     config = CLI_CONFIG["jtk"]
-    cmd = [config["path"]] + args.split()
+    cmd = [config["path"]] + shlex.split(args)
     result = run_cli(cmd)
     return json.dumps(result, indent=2)
 
@@ -175,7 +176,7 @@ def slack_cli(args: str) -> str:
     Use cli_help("slck") to discover all available commands.
     """
     config = CLI_CONFIG["slck"]
-    cmd = [config["path"]] + args.split()
+    cmd = [config["path"]] + shlex.split(args)
     result = run_cli(cmd)
     return json.dumps(result, indent=2)
 
@@ -199,7 +200,7 @@ def confluence_cli(args: str) -> str:
     Use cli_help("cfl") to discover all available commands.
     """
     config = CLI_CONFIG["cfl"]
-    cmd = [config["path"]] + args.split()
+    cmd = [config["path"]] + shlex.split(args)
     result = run_cli(cmd)
     return json.dumps(result, indent=2)
 
@@ -223,7 +224,7 @@ def newrelic_cli(args: str) -> str:
     Use cli_help("nrq") to discover all available commands.
     """
     config = CLI_CONFIG["nrq"]
-    cmd = [config["path"]] + args.split()
+    cmd = [config["path"]] + shlex.split(args)
     result = run_cli(cmd)
     return json.dumps(result, indent=2)
 
@@ -263,7 +264,7 @@ def google_cli(args: str) -> str:
     Use cli_help("gro") to discover all available commands.
     """
     config = CLI_CONFIG["gro"]
-    cmd = [config["path"]] + args.split()
+    cmd = [config["path"]] + shlex.split(args)
     result = run_cli(cmd)
     return json.dumps(result, indent=2)
 
