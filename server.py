@@ -213,13 +213,16 @@ def newrelic_cli(args: str) -> str:
     args: Space-separated arguments (e.g., "logs query --nrql 'SELECT * FROM Log'")
 
     Common commands:
+    - nrql "SELECT count(*) FROM Transaction SINCE 1 hour ago"
+    - nrql --link "SELECT count(*) FROM Transaction SINCE 1 hour ago"
+    - logs link 'entity.name:"my-service" level:"ERROR"' --since "30 minutes ago"
+    - entities search "name LIKE 'prod%'" --link --since "1 hour ago"
     - apps list
     - apps get <id>
-    - logs query --nrql "SELECT * FROM Log WHERE ..."
     - nerdgraph query "GraphQL query"
-    - alerts list
+    - deployments list <app-id> --since "7 days ago"
     - dashboards list
-    - entities search --name "pattern"
+    - alerts policies list
 
     Use cli_help("nrq") to discover all available commands.
     """
