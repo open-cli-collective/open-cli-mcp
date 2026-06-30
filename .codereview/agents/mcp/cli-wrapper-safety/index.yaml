@@ -1,0 +1,14 @@
+name: cli-wrapper-safety
+description: Reviews FastMCP stdio CLI wrapper safety, behavior, and regression coverage.
+model_tier: small
+effort: low
+file_globs:
+  - server.py
+  - test_server.py
+  - requirements.txt
+  - README*
+  - CLAUDE*
+  - .codereview/**
+applies_when:
+  - Changes touch the FastMCP stdio CLI wrapper, its convenience wrappers, install/update guidance, or tests covering CLI argument handling and output parsing.
+needs_full_file_content: false
