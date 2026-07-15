@@ -56,7 +56,28 @@ CLI_CONFIG = {
         "version_cmd": ["--version"],
         "json_flag": "--json",
         "source": "cask",
-        "cask": "open-cli-collective/tap/gro",
+        "cask": "open-cli-collective/tap/google-readonly",
+    },
+    "hspt": {
+        "path": "hspt",
+        "version_cmd": ["--version"],
+        "json_flag": "-o json",
+        "source": "cask",
+        "cask": "open-cli-collective/tap/hubspot-cli",
+    },
+    "sfdc": {
+        "path": "sfdc",
+        "version_cmd": ["--version"],
+        "json_flag": "--output json",
+        "source": "cask",
+        "cask": "open-cli-collective/tap/salesforce-cli",
+    },
+    "cr": {
+        "path": "cr",
+        "version_cmd": ["--version"],
+        "json_flag": None,
+        "source": "cask",
+        "cask": "open-cli-collective/tap/codereview-cli",
     },
 }
 
@@ -106,7 +127,7 @@ def cli_help(cli: str, subcommand: Optional[str] = None) -> str:
     Get help documentation for a CLI or its subcommands.
     Use this to discover available commands and options.
 
-    cli: CLI name (jtk, slck, cfl, nrq, gro)
+    cli: CLI name (jtk, slck, cfl, nrq, gro, hspt, sfdc, cr)
     subcommand: Optional subcommand path (e.g., "issues create" or "page list")
 
     Examples:
@@ -114,6 +135,8 @@ def cli_help(cli: str, subcommand: Optional[str] = None) -> str:
     - cli_help("jtk", "issues") - Get issues subcommands
     - cli_help("cfl", "page list") - Get specific command help
     - cli_help("gro", "gmail") - Get Gmail subcommands
+    - cli_help("hspt", "contacts") - Get HubSpot contacts subcommands
+    - cli_help("sfdc", "query") - Get Salesforce query help
     """
     if cli not in CLI_CONFIG:
         return json.dumps(
@@ -272,6 +295,84 @@ def google_cli(args: str) -> str:
     return json.dumps(result, indent=2)
 
 
+@mcp.tool()
+def hubspot_cli(args: str) -> str:
+    """
+    Run any hspt (HubSpot) command. Full access to HubSpot CRM functionality.
+
+    args: Space-separated arguments (e.g., "contacts list --limit 20 -o json")
+
+    Common commands:
+    - contacts list --limit 20
+    - contacts search --email john@example.com
+    - contacts get <id>
+    - companies list
+    - deals list --properties dealname,amount,closedate
+    - deals search --stage closedwon --limit 50
+    - tickets list
+    - notes list --limit 10
+    - tasks create --subject "Follow up" --body "Call about renewal" --priority HIGH
+    - associations list --from-type contacts --from-id <id> --to-type companies
+
+    Use cli_help("hspt") to discover all available commands.
+    """
+    config = CLI_CONFIG["hspt"]
+    cmd = [config["path"]] + shlex.split(args)
+    result = run_cli(cmd)
+    return json.dumps(result, indent=2)
+
+
+@mcp.tool()
+def salesforce_cli(args: str) -> str:
+    """
+    Run any sfdc (Salesforce) command. Full access to Salesforce functionality.
+
+    args: Space-separated arguments (e.g., 'query "SELECT Id, Name FROM Account LIMIT 5" --output json')
+
+    Common commands:
+    - query "SELECT Id, Name FROM Account LIMIT 10"
+    - search "Acme" --in Account,Contact
+    - record get Account <id>
+    - record create Contact --set FirstName=John --set LastName=Doe
+    - record update Account <id> --set Name="New Name"
+    - object list
+    - object describe Account
+    - object fields Account
+    - limits
+
+    Use cli_help("sfdc") to discover all available commands.
+    """
+    config = CLI_CONFIG["sfdc"]
+    cmd = [config["path"]] + shlex.split(args)
+    result = run_cli(cmd)
+    return json.dumps(result, indent=2)
+
+
+@mcp.tool()
+def codereview_cli(args: str) -> str:
+    """
+    Run any cr (codereview-cli) command. Automated pull-request reviews.
+
+    args: Space-separated arguments (e.g., "review 123 --dry-run")
+
+    Common commands:
+    - review <PR> --dry-run (plan review actions without posting)
+    - review <PR> (run a live review and post findings)
+    - respond (respond to unresolved inline discussion threads)
+    - me (resolve the active git-host identity)
+    - config (inspect cr configuration)
+    - version
+
+    Live reviews run an LLM loop and can take several minutes.
+
+    Use cli_help("cr") to discover all available commands.
+    """
+    config = CLI_CONFIG["cr"]
+    cmd = [config["path"]] + shlex.split(args)
+    result = run_cli(cmd, timeout=600)
+    return json.dumps(result, indent=2)
+
+
 # =============================================================================
 # CONVENIENCE WRAPPERS - Common operations with better ergonomics
 # =============================================================================
@@ -311,6 +412,12 @@ def calendar_today() -> str:
 def drive_search(query: str, limit: int = 20) -> str:
     """Search Google Drive files."""
     return google_cli(f'drive search "{query}" --limit {limit} --json')
+
+
+@mcp.tool()
+def salesforce_query(soql: str) -> str:
+    """Run a SOQL query against Salesforce (e.g., "SELECT Id, Name FROM Account LIMIT 10")."""
+    return salesforce_cli(f'query "{soql}" --output json')
 
 
 # =============================================================================
@@ -427,7 +534,7 @@ def update_tools(tools: Optional[list[str]] = None) -> str:
     Update CLI tools to their latest versions.
 
     tools: Optional list of specific tools to update. If not provided, updates all tools with available updates.
-           Valid names: jtk, slck, cfl, nrq, gro
+           Valid names: jtk, slck, cfl, nrq, gro, hspt, sfdc, cr
 
     All tools are updated via Homebrew casks from open-cli-collective/tap.
     """

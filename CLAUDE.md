@@ -12,10 +12,15 @@ This is an MCP server that exposes open-cli-collective CLI tools to Claude Code.
 | Binary | Cask | Description |
 |--------|------|-------------|
 | `jtk` | jtk | Jira Cloud management |
-| `slck` | slack-chat-cli | Slack workspace interaction |
+| `slck` | slck | Slack workspace interaction |
 | `cfl` | cfl | Confluence CLI |
-| `newrelic-cli` | newrelic-cli | New Relic observability |
+| `nrq` | nrq | New Relic observability |
 | `gro` | google-readonly | Read-only Google services (Gmail, Calendar, Contacts, Drive) |
+| `hspt` | hubspot-cli | HubSpot CRM |
+| `sfdc` | salesforce-cli | Salesforce |
+| `cr` | codereview-cli | Automated pull-request reviews |
+
+`cpm` is excluded: it is an interactive TUI and cannot run as a non-interactive MCP subprocess.
 
 ## Making Changes
 
