@@ -11,6 +11,11 @@ An MCP (Model Context Protocol) server that exposes CLI tools from the [open-cli
 | [atlassian-cli](https://github.com/open-cli-collective/atlassian-cli) | `cfl` | Confluence page and space management |
 | [newrelic-cli](https://github.com/open-cli-collective/newrelic-cli) | `nrq` | New Relic observability platform |
 | [google-readonly](https://github.com/open-cli-collective/google-readonly) | `gro` | Read-only Google services (Gmail, Calendar, Contacts, Drive) |
+| [hubspot-cli](https://github.com/open-cli-collective/hubspot-cli) | `hspt` | HubSpot CRM (contacts, companies, deals, engagements) |
+| [salesforce-cli](https://github.com/open-cli-collective/salesforce-cli) | `sfdc` | Salesforce (SOQL queries, records, objects) |
+| [codereview-cli](https://github.com/open-cli-collective/codereview-cli) | `cr` | Automated pull-request reviews |
+
+> [cpm](https://github.com/open-cli-collective/cpm) (Claude plugin manager) is not included because it is an interactive TUI.
 
 ## Installation
 
@@ -26,11 +31,14 @@ An MCP (Model Context Protocol) server that exposes CLI tools from the [open-cli
 brew tap open-cli-collective/tap
 
 # Install the tools you need (all are casks)
-brew install open-cli-collective/tap/jtk
+brew install --cask open-cli-collective/tap/jtk
 brew install --cask open-cli-collective/tap/slck
 brew install --cask open-cli-collective/tap/cfl
 brew install --cask open-cli-collective/tap/nrq
-brew install --cask open-cli-collective/tap/gro
+brew install --cask open-cli-collective/tap/google-readonly
+brew install --cask open-cli-collective/tap/hubspot-cli
+brew install --cask open-cli-collective/tap/salesforce-cli
+brew install --cask open-cli-collective/tap/codereview-cli
 ```
 
 ### Install the MCP Server
@@ -79,6 +87,9 @@ Once configured, the MCP server exposes these tools:
 - `confluence_cli(args)` - Run any cfl (Confluence) command
 - `newrelic_cli(args)` - Run any nrq (New Relic) command
 - `google_cli(args)` - Run any gro (Google) command (Gmail, Calendar, Contacts, Drive)
+- `hubspot_cli(args)` - Run any hspt (HubSpot) command
+- `salesforce_cli(args)` - Run any sfdc (Salesforce) command
+- `codereview_cli(args)` - Run any cr (codereview) command
 
 ### Convenience Wrappers
 
@@ -88,6 +99,7 @@ Once configured, the MCP server exposes these tools:
 - `gmail_search(query, limit?)` - Search Gmail messages
 - `calendar_today()` - Get today's calendar events
 - `drive_search(query, limit?)` - Search Google Drive files
+- `salesforce_query(soql)` - Run a SOQL query against Salesforce
 
 ### Tool Management
 
@@ -119,6 +131,15 @@ calendar_today()
 
 # Search Google Drive
 drive_search("quarterly report", limit=5)
+
+# Query Salesforce
+salesforce_query("SELECT Id, Name FROM Account LIMIT 10")
+
+# List HubSpot contacts
+hubspot_cli("contacts list --limit 20 -o json")
+
+# Plan a PR review without posting
+codereview_cli("review 123 --dry-run")
 
 # Check tool versions
 list_tools_status()

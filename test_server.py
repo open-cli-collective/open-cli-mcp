@@ -56,9 +56,27 @@ class TestArgSplitting:
     @patch("server.run_cli", return_value=MOCK_RESULT)
     def test_all_cli_functions_use_shlex(self, mock_run):
         """Every generic CLI function must handle quoted args."""
-        from server import jira_cli, slack_cli, confluence_cli, newrelic_cli, google_cli
+        from server import (
+            jira_cli,
+            slack_cli,
+            confluence_cli,
+            newrelic_cli,
+            google_cli,
+            hubspot_cli,
+            salesforce_cli,
+            codereview_cli,
+        )
 
-        for fn in [jira_cli, slack_cli, confluence_cli, newrelic_cli, google_cli]:
+        for fn in [
+            jira_cli,
+            slack_cli,
+            confluence_cli,
+            newrelic_cli,
+            google_cli,
+            hubspot_cli,
+            salesforce_cli,
+            codereview_cli,
+        ]:
             mock_run.reset_mock()
             fn('test --flag "value with spaces"')
             cmd = _get_cmd(mock_run)
@@ -99,3 +117,11 @@ class TestConvenienceWrappers:
         drive_search("quarterly report 2026")
         cmd = _get_cmd(mock_run)
         assert "quarterly report 2026" in cmd
+
+    @patch("server.run_cli", return_value=MOCK_RESULT)
+    def test_salesforce_query(self, mock_run):
+        from server import salesforce_query
+
+        salesforce_query("SELECT Id, Name FROM Account LIMIT 10")
+        cmd = _get_cmd(mock_run)
+        assert "SELECT Id, Name FROM Account LIMIT 10" in cmd
