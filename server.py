@@ -95,6 +95,18 @@ def run_cli(cmd: list[str], timeout: int = 60) -> dict:
         return {"success": False, "error": str(e)}
 
 
+def run_cli_json(cli: str, args: list[str]) -> str:
+    """Run a configured CLI with an explicit argv list and return JSON output.
+
+    Passing args as a list keeps each element as a single argv entry, so
+    free-text values (search queries, summaries, etc.) are never split on
+    whitespace or re-parsed for quotes.
+    """
+    config = CLI_CONFIG[cli]
+    result = run_cli([config["path"], *args])
+    return json.dumps(result, indent=2)
+
+
 # =============================================================================
 # GENERIC CLI ACCESS - Full functionality for any CLI
 # =============================================================================
@@ -280,37 +292,48 @@ def google_cli(args: str) -> str:
 @mcp.tool()
 def jira_get_issue(issue_key: str) -> str:
     """Get a Jira issue by key (e.g., PROJ-1234)."""
-    return jira_cli(f"issues get {issue_key} --output json")
+    return run_cli_json("jtk", ["issues", "get", issue_key, "--output", "json"])
 
 
 @mcp.tool()
 def slack_search_messages(query: str, count: int = 20) -> str:
-    """Search Slack messages."""
-    return slack_cli(f'search messages "{query}" --count {count} --output json')
+    """Search Slack messages. The query is passed verbatim as a single argument."""
+    return run_cli_json(
+        "slck",
+        ["search", "messages", query, "--count", str(count), "--output", "json"],
+    )
 
 
 @mcp.tool()
 def confluence_search(query: str, limit: int = 25) -> str:
-    """Search Confluence pages."""
-    return confluence_cli(f'search "{query}" --limit {limit} --output json')
+    """Search Confluence pages. The query is passed verbatim as a single argument."""
+    return run_cli_json(
+        "cfl", ["search", query, "--limit", str(limit), "--output", "json"]
+    )
 
 
 @mcp.tool()
 def gmail_search(query: str, limit: int = 20) -> str:
-    """Search Gmail messages."""
-    return google_cli(f'gmail search --query "{query}" --limit {limit} --json')
+    """Search Gmail messages. The query is passed verbatim as a single argument,
+    so Gmail operators, quoted phrases, and OR clauses work as-is
+    (e.g. '"exact phrase" OR keyword newer_than:90d')."""
+    return run_cli_json(
+        "gro", ["gmail", "search", "--query", query, "--limit", str(limit), "--json"]
+    )
 
 
 @mcp.tool()
 def calendar_today() -> str:
     """Get today's calendar events."""
-    return google_cli("calendar today --json")
+    return run_cli_json("gro", ["calendar", "today", "--json"])
 
 
 @mcp.tool()
 def drive_search(query: str, limit: int = 20) -> str:
-    """Search Google Drive files."""
-    return google_cli(f'drive search "{query}" --limit {limit} --json')
+    """Search Google Drive files. The query is passed verbatim as a single argument."""
+    return run_cli_json(
+        "gro", ["drive", "search", query, "--limit", str(limit), "--json"]
+    )
 
 
 # =============================================================================
