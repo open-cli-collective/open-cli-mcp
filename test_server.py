@@ -66,7 +66,7 @@ class TestArgSplitting:
 
 
 class TestConvenienceWrappers:
-    """Convenience wrappers embed quotes in f-strings — verify they parse correctly."""
+    """Convenience wrappers must pass semantic params as single argv elements."""
 
     @patch("server.run_cli", return_value=MOCK_RESULT)
     def test_slack_search(self, mock_run):
@@ -99,3 +99,77 @@ class TestConvenienceWrappers:
         drive_search("quarterly report 2026")
         cmd = _get_cmd(mock_run)
         assert "quarterly report 2026" in cmd
+
+    @patch("server.run_cli", return_value=MOCK_RESULT)
+    def test_jira_get_issue(self, mock_run):
+        from server import jira_get_issue
+
+        jira_get_issue("PROJ-1234")
+        assert _get_cmd(mock_run) == [
+            "jtk", "issues", "get", "PROJ-1234", "--output", "json",
+        ]
+
+
+class TestSemanticParamsSingleArgv:
+    """Regression tests for issue #8: semantic free-text params must reach the
+    CLI as exactly one argv element, even with embedded quotes, apostrophes,
+    or search operators."""
+
+    @patch("server.run_cli", return_value=MOCK_RESULT)
+    def test_gmail_search_full_argv(self, mock_run):
+        from server import gmail_search
+
+        query = '"exact phrase" OR keyword OR "other phrase" newer_than:90d'
+        gmail_search(query, limit=50)
+        assert _get_cmd(mock_run) == [
+            "gro", "gmail", "search", "--query", query, "--limit", "50", "--json",
+        ]
+
+    @patch("server.run_cli", return_value=MOCK_RESULT)
+    def test_gmail_search_embedded_quotes_preserved(self, mock_run):
+        from server import gmail_search
+
+        query = 'subject:"weekly report" -from:noreply@example.com'
+        gmail_search(query)
+        cmd = _get_cmd(mock_run)
+        assert query in cmd, "query must be a single argv element with quotes intact"
+
+    @patch("server.run_cli", return_value=MOCK_RESULT)
+    def test_drive_search_full_argv(self, mock_run):
+        from server import drive_search
+
+        query = 'name contains "budget" and modifiedTime > \'2026-01-01\''
+        drive_search(query, limit=5)
+        assert _get_cmd(mock_run) == [
+            "gro", "drive", "search", query, "--limit", "5", "--json",
+        ]
+
+    @patch("server.run_cli", return_value=MOCK_RESULT)
+    def test_confluence_search_full_argv(self, mock_run):
+        from server import confluence_search
+
+        query = 'title ~ "release notes" AND space = ENG'
+        confluence_search(query, limit=10)
+        assert _get_cmd(mock_run) == [
+            "cfl", "search", query, "--limit", "10", "--output", "json",
+        ]
+
+    @patch("server.run_cli", return_value=MOCK_RESULT)
+    def test_slack_search_full_argv(self, mock_run):
+        from server import slack_search_messages
+
+        query = '"deploy failed" in:#alerts before:2026-08-01'
+        slack_search_messages(query, count=15)
+        assert _get_cmd(mock_run) == [
+            "slck", "search", "messages", query, "--count", "15", "--output", "json",
+        ]
+
+    @patch("server.run_cli", return_value=MOCK_RESULT)
+    def test_apostrophes_survive(self, mock_run):
+        from server import drive_search, gmail_search
+
+        query = "team's quarterly plan"
+        for fn in (drive_search, gmail_search):
+            mock_run.reset_mock()
+            fn(query)
+            assert query in _get_cmd(mock_run), f"{fn.__name__} mangled apostrophe"
