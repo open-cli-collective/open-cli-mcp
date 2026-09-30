@@ -26,35 +26,30 @@ CLI_CONFIG = {
     "jtk": {
         "path": "jtk",
         "version_cmd": ["--version"],
-        "json_flag": "--output json",
         "source": "cask",
         "cask": "open-cli-collective/tap/jtk",
     },
     "slck": {
         "path": "slck",
         "version_cmd": ["--version"],
-        "json_flag": "--output json",
         "source": "cask",
         "cask": "open-cli-collective/tap/slck",
     },
     "cfl": {
         "path": "cfl",
         "version_cmd": ["--version"],
-        "json_flag": "--output json",
         "source": "cask",
         "cask": "open-cli-collective/tap/cfl",
     },
     "nrq": {
         "path": "nrq",
         "version_cmd": ["--version"],
-        "json_flag": "--output json",
         "source": "cask",
         "cask": "open-cli-collective/tap/nrq",
     },
     "gro": {
         "path": "gro",
         "version_cmd": ["--version"],
-        "json_flag": "--json",
         "source": "cask",
         "cask": "open-cli-collective/tap/gro",
     },
@@ -113,7 +108,7 @@ def cli_help(cli: str, subcommand: Optional[str] = None) -> str:
     - cli_help("jtk") - Get top-level help
     - cli_help("jtk", "issues") - Get issues subcommands
     - cli_help("cfl", "page list") - Get specific command help
-    - cli_help("gro", "gmail") - Get Gmail subcommands
+    - cli_help("gro", "mail") - Get Gmail subcommands
     """
     if cli not in CLI_CONFIG:
         return json.dumps(
@@ -136,15 +131,15 @@ def jira_cli(args: str) -> str:
     """
     Run any jtk (Jira) command. Full access to Jira functionality.
 
-    args: Space-separated arguments (e.g., "issues get PROJ-1234 --output json")
+    args: Space-separated arguments (e.g., "issues get PROJ-1234")
 
     Common commands:
     - issues get <key>
     - issues create --project <key> --summary "Title" --type Task
-    - issues list --project <key> --status "In Progress"
+    - issues search --jql "project = <key> AND status = 'In Progress'"
     - sprints list --board <id>
-    - sprints issues --board <id> --state active
-    - transitions do <key> --to "In Progress"
+    - sprints issues <sprint-id>
+    - transitions do <key> "In Progress"
     - comments add <key> --body "Comment text"
     - me (show current user)
 
@@ -161,16 +156,16 @@ def slack_cli(args: str) -> str:
     """
     Run any slck (Slack) command. Full access to Slack functionality.
 
-    args: Space-separated arguments (e.g., "messages history --channel general --limit 50")
+    args: Space-separated arguments (e.g., "messages history general --limit 50")
 
     Common commands:
     - channels list [--limit N]
-    - channels info --channel <name-or-id>
-    - messages history --channel <name> --limit N
-    - messages send --channel <name> --text "Message"
+    - channels get <name-or-id>
+    - messages history <channel> --limit N
+    - messages send <channel> "Message"
     - search messages "query" [--count N]
     - users list
-    - users info --user <id>
+    - users get <user-id>
     - workspace info
 
     Use cli_help("slck") to discover all available commands.
@@ -186,15 +181,15 @@ def confluence_cli(args: str) -> str:
     """
     Run any cfl (Confluence) command. Full access to Confluence functionality.
 
-    args: Space-separated arguments (e.g., "page get <page-id> --output json")
+    args: Space-separated arguments (e.g., "page view <page-id>")
 
     Common commands:
     - search "query" [--limit N]
-    - page get <page-id>
+    - page view <page-id>
     - page list --space <key>
-    - page create --space <key> --title "Title" --body "Content"
+    - page create --space <key> --title "Title" --file content.md
     - space list
-    - space get <key>
+    - space view <key>
     - attachment list --page <id>
 
     Use cli_help("cfl") to discover all available commands.
@@ -240,10 +235,10 @@ def google_cli(args: str) -> str:
     args: Space-separated arguments
 
     Gmail commands:
-    - gmail search --query "from:someone@example.com"
-    - gmail read <message-id>
-    - gmail thread <message-id>
-    - gmail labels
+    - mail search "from:someone@example.com"
+    - mail read <message-id>
+    - mail thread <message-id>
+    - mail labels
 
     Calendar commands:
     - calendar list
@@ -277,40 +272,46 @@ def google_cli(args: str) -> str:
 # =============================================================================
 
 
+def _run_argv(cli: str, argv: list[str]) -> str:
+    """Run a CLI with an argument list built by a wrapper, so values are never re-parsed."""
+    result = run_cli([CLI_CONFIG[cli]["path"]] + argv)
+    return json.dumps(result, indent=2)
+
+
 @mcp.tool()
 def jira_get_issue(issue_key: str) -> str:
     """Get a Jira issue by key (e.g., PROJ-1234)."""
-    return jira_cli(f"issues get {issue_key} --output json")
+    return _run_argv("jtk", ["issues", "get", issue_key])
 
 
 @mcp.tool()
 def slack_search_messages(query: str, count: int = 20) -> str:
     """Search Slack messages."""
-    return slack_cli(f'search messages "{query}" --count {count} --output json')
+    return _run_argv("slck", ["search", "messages", query, "--count", str(count)])
 
 
 @mcp.tool()
 def confluence_search(query: str, limit: int = 25) -> str:
     """Search Confluence pages."""
-    return confluence_cli(f'search "{query}" --limit {limit} --output json')
+    return _run_argv("cfl", ["search", query, "--limit", str(limit)])
 
 
 @mcp.tool()
 def gmail_search(query: str, limit: int = 20) -> str:
     """Search Gmail messages."""
-    return google_cli(f'gmail search --query "{query}" --limit {limit} --json')
+    return _run_argv("gro", ["mail", "search", query, "--max", str(limit)])
 
 
 @mcp.tool()
 def calendar_today() -> str:
     """Get today's calendar events."""
-    return google_cli("calendar today --json")
+    return _run_argv("gro", ["calendar", "today"])
 
 
 @mcp.tool()
 def drive_search(query: str, limit: int = 20) -> str:
     """Search Google Drive files."""
-    return google_cli(f'drive search "{query}" --limit {limit} --json')
+    return _run_argv("gro", ["drive", "search", query, "--max", str(limit)])
 
 
 # =============================================================================

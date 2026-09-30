@@ -20,7 +20,7 @@ This is an MCP server that exposes open-cli-collective CLI tools to Claude Code.
 ## Making Changes
 
 When adding new tools:
-1. Add to `CLI_CONFIG` dict with path, version_cmd, json_flag, source, and cask
+1. Add to `CLI_CONFIG` dict with path, version_cmd, source, and cask
 2. Create a dedicated tool function (e.g., `@mcp.tool() def new_cli(args: str)`)
 3. Optionally add convenience wrappers for common operations
 4. Update README with the new tool

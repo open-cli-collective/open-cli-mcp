@@ -66,36 +66,55 @@ class TestArgSplitting:
 
 
 class TestConvenienceWrappers:
-    """Convenience wrappers embed quotes in f-strings — verify they parse correctly."""
+    """Convenience wrappers pass argument lists, so a value is one token whatever it contains."""
+
+    @patch("server.run_cli", return_value=MOCK_RESULT)
+    def test_jira_get_issue(self, mock_run):
+        from server import jira_get_issue
+
+        jira_get_issue("PROJ-1234")
+        assert _get_cmd(mock_run) == ["jtk", "issues", "get", "PROJ-1234"]
 
     @patch("server.run_cli", return_value=MOCK_RESULT)
     def test_slack_search(self, mock_run):
         from server import slack_search_messages
 
-        slack_search_messages("multi word query")
-        cmd = _get_cmd(mock_run)
-        assert "multi word query" in cmd
+        slack_search_messages("multi word query", count=5)
+        assert _get_cmd(mock_run) == ["slck", "search", "messages", "multi word query", "--count", "5"]
 
     @patch("server.run_cli", return_value=MOCK_RESULT)
     def test_confluence_search(self, mock_run):
         from server import confluence_search
 
-        confluence_search("page title here")
-        cmd = _get_cmd(mock_run)
-        assert "page title here" in cmd
+        confluence_search("page title here", limit=3)
+        assert _get_cmd(mock_run) == ["cfl", "search", "page title here", "--limit", "3"]
 
     @patch("server.run_cli", return_value=MOCK_RESULT)
     def test_gmail_search(self, mock_run):
         from server import gmail_search
 
-        gmail_search("from:someone@example.com subject:hello")
-        cmd = _get_cmd(mock_run)
-        assert "from:someone@example.com subject:hello" in cmd
+        gmail_search("from:someone@example.com subject:hello", limit=7)
+        assert _get_cmd(mock_run) == [
+            "gro", "mail", "search", "from:someone@example.com subject:hello", "--max", "7",
+        ]
+
+    @patch("server.run_cli", return_value=MOCK_RESULT)
+    def test_calendar_today(self, mock_run):
+        from server import calendar_today
+
+        calendar_today()
+        assert _get_cmd(mock_run) == ["gro", "calendar", "today"]
 
     @patch("server.run_cli", return_value=MOCK_RESULT)
     def test_drive_search(self, mock_run):
         from server import drive_search
 
-        drive_search("quarterly report 2026")
-        cmd = _get_cmd(mock_run)
-        assert "quarterly report 2026" in cmd
+        drive_search("quarterly report 2026", limit=2)
+        assert _get_cmd(mock_run) == ["gro", "drive", "search", "quarterly report 2026", "--max", "2"]
+
+    @patch("server.run_cli", return_value=MOCK_RESULT)
+    def test_query_with_quotes_stays_one_token(self, mock_run):
+        from server import gmail_search
+
+        gmail_search('"exact phrase" newer_than:1d')
+        assert '"exact phrase" newer_than:1d' in _get_cmd(mock_run)
