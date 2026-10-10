@@ -11,6 +11,7 @@ An MCP (Model Context Protocol) server that exposes CLI tools from the [open-cli
 | [atlassian-cli](https://github.com/open-cli-collective/atlassian-cli) | `cfl` | Confluence page and space management |
 | [newrelic-cli](https://github.com/open-cli-collective/newrelic-cli) | `nrq` | New Relic observability platform |
 | [google-readonly](https://github.com/open-cli-collective/google-readonly) | `gro` | Read-only Google services (Gmail, Calendar, Contacts, Drive) |
+| [granola-cli](https://github.com/open-cli-collective/granola-cli) | `granola` | Read-only Granola meeting notes (cask `granola-cli`) |
 
 ## Installation
 
@@ -31,6 +32,7 @@ brew install --cask open-cli-collective/tap/slck
 brew install --cask open-cli-collective/tap/cfl
 brew install --cask open-cli-collective/tap/nrq
 brew install --cask open-cli-collective/tap/gro
+brew install --cask open-cli-collective/tap/granola-cli
 ```
 
 ### Install the MCP Server
@@ -79,6 +81,7 @@ Once configured, the MCP server exposes these tools:
 - `confluence_cli(args)` - Run any cfl (Confluence) command
 - `newrelic_cli(args)` - Run any nrq (New Relic) command
 - `google_cli(args)` - Run any gro (Google) command (Gmail, Calendar, Contacts, Drive)
+- `granola(args)` - Run read-only granola commands (meetings, folders, account, tools list/get, config show); `login`, `config clear`, and `tools call` are refused and run in a terminal
 
 ### Convenience Wrappers
 
