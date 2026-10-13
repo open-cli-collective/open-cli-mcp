@@ -53,7 +53,58 @@ CLI_CONFIG = {
         "source": "cask",
         "cask": "open-cli-collective/tap/gro",
     },
+    # The cask is granola-cli because Homebrew's own "granola" cask is the
+    # Granola desktop app. The passthrough admits only the read-only commands
+    # in allowed_verbs: it refuses login (a browser sign-in this stdio server
+    # cannot complete), config clear (removes the stored session), and tools
+    # call, whose read-only check lives in the granola binary rather than here.
+    "granola": {
+        "path": "granola",
+        "version_cmd": ["version"],
+        "source": "cask",
+        "cask": "open-cli-collective/tap/granola-cli",
+        # meetings query waits on Granola's server to search and write an
+        # answer; the CLI's own --timeout defaults to 3m.
+        "timeout": 240,
+        "allowed_verbs": {
+            "meetings",
+            "meeting",
+            "m",
+            "folders",
+            "folder",
+            "account",
+            "tools list",
+            "tools get",
+            "config show",
+            "version",
+            "--help",
+            "-h",
+        },
+    },
 }
+
+
+def verb_allowed(argv: list[str], allowed: set[str]) -> bool:
+    """Whether a passthrough invocation is on the allowlist.
+
+    An entry may be one token ("folders") or two ("config show"), which admits
+    a group for one subcommand while its siblings (config clear) are refused.
+    A two-token entry matches only when both tokens are present; a one-token
+    verb entry matches the first token, admitting the group and everything
+    under it.
+
+    A flag entry ("--help", "-h") matches only a bare, single-token invocation;
+    otherwise a leading flag would admit the whole argv and let a refused
+    subcommand ride behind it ("-h login").
+    """
+    if not argv:
+        return False
+    first = argv[0]
+    if first in allowed:
+        if first.startswith("-"):
+            return len(argv) == 1
+        return True
+    return len(argv) >= 2 and " ".join(argv[:2]) in allowed
 
 
 def run_cli(cmd: list[str], timeout: int = 60) -> dict:
@@ -101,7 +152,7 @@ def cli_help(cli: str, subcommand: Optional[str] = None) -> str:
     Get help documentation for a CLI or its subcommands.
     Use this to discover available commands and options.
 
-    cli: CLI name (jtk, slck, cfl, nrq, gro)
+    cli: CLI name (jtk, slck, cfl, nrq, gro, granola)
     subcommand: Optional subcommand path (e.g., "issues create" or "page list")
 
     Examples:
@@ -109,6 +160,7 @@ def cli_help(cli: str, subcommand: Optional[str] = None) -> str:
     - cli_help("jtk", "issues") - Get issues subcommands
     - cli_help("cfl", "page list") - Get specific command help
     - cli_help("gro", "mail") - Get Gmail subcommands
+    - cli_help("granola", "meetings list") - Get Granola meeting-list flags
     """
     if cli not in CLI_CONFIG:
         return json.dumps(
@@ -264,6 +316,62 @@ def google_cli(args: str) -> str:
     config = CLI_CONFIG["gro"]
     cmd = [config["path"]] + shlex.split(args)
     result = run_cli(cmd)
+    return json.dumps(result, indent=2)
+
+
+@mcp.tool()
+def granola(args: str) -> str:
+    """
+    Run read-only granola commands. granola reads your Granola meeting notes,
+    transcripts, and folders through Granola's hosted MCP server and prints the
+    server's text output as written (--json prints the raw tool result).
+
+    args: Shell-style arguments; quote multiword values (e.g., 'meetings query "what did we decide about the rollout?"').
+
+    Common commands:
+    - meetings list [--time-range this_week|last_week|last_30_days] [--mine]
+      [--folder <id>] [--json] : meetings with IDs, titles, dates,
+      participants (default range last_30_days)
+    - meetings get <meeting-id>... : AI summary, private notes, attendees
+      (up to 10 IDs per call)
+    - meetings transcript <meeting-id> : verbatim transcript (paid plans)
+    - meetings query "<question>" [--meeting <id>] : natural-language search;
+      Granola's server answers with citation links. This is the only search
+      the server offers (no keyword or date-range search).
+    - folders list : folder IDs and note counts (paid plans)
+    - account get : signed-in account, workspace, note-access scopes
+    - tools list / tools get <name> : the server's raw MCP tools and their
+      input schemas (tools call is refused here; the first-class commands
+      above wrap each read tool)
+
+    Notes:
+    - Auth: `granola login` is a one-time browser sign-in; the session lives
+      in the OS keychain and refreshes silently. Login is refused here; run it
+      in a terminal. `config show` reports whether a session is stored.
+    - Plan limits come from Granola: the free plan returns only the last 30
+      days, and transcripts and folders exit 5 with the server's refusal.
+    Use cli_help("granola") to discover all available commands.
+    """
+    config = CLI_CONFIG["granola"]
+    try:
+        argv = shlex.split(args)
+    except ValueError as e:
+        return json.dumps(
+            {"success": False, "error": f"Could not parse args ({e}); check quoting: {args}"},
+            indent=2,
+        )
+    allowed = config["allowed_verbs"]
+    if not verb_allowed(argv, allowed):
+        return json.dumps(
+            {
+                "success": False,
+                "error": f"'granola {' '.join(argv) or '(no command)'}' is not available through this "
+                f"passthrough; allowed: {', '.join(sorted(allowed))}. "
+                "Sign-in and destructive commands run in a terminal.",
+            },
+            indent=2,
+        )
+    result = run_cli([config["path"]] + argv, timeout=config["timeout"])
     return json.dumps(result, indent=2)
 
 
@@ -428,7 +536,7 @@ def update_tools(tools: Optional[list[str]] = None) -> str:
     Update CLI tools to their latest versions.
 
     tools: Optional list of specific tools to update. If not provided, updates all tools with available updates.
-           Valid names: jtk, slck, cfl, nrq, gro
+           Valid names: jtk, slck, cfl, nrq, gro, granola
 
     All tools are updated via Homebrew casks from open-cli-collective/tap.
     """

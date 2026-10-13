@@ -16,6 +16,7 @@ This is an MCP server that exposes open-cli-collective CLI tools to Claude Code.
 | `cfl` | cfl | Confluence CLI |
 | `newrelic-cli` | newrelic-cli | New Relic observability |
 | `gro` | google-readonly | Read-only Google services (Gmail, Calendar, Contacts, Drive) |
+| `granola` | granola-cli | Read-only Granola meeting notes; passthrough limited to `allowed_verbs` |
 
 ## Making Changes
 
